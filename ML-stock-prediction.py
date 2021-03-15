@@ -5,15 +5,15 @@ import base64
 from plotly import graph_objs as go
 import seaborn as sb
 import numpy as np 
-from sklearn.linear_model import LinearRegression
-from sklearn.svm import SVR
-from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.ensemble import RandomForestRegressor
+import pandas as pd
 from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
-
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.svm import SVR
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 
 st.write("""
          # Stock Price Predicition App
@@ -25,7 +25,7 @@ st.write("""
 
 expander_bar = st.beta_expander("About Application")
 expander_bar.markdown("""
-* **Python libraries:** yfinace, datetime, base64, numpy, matplotlib, seaborn, streamlit, sklearn, plotly
+* **Python libraries:** yfinace, datetime, base64, numpy, matplotlib, seaborn, streamlit, sklearn, plotly, pandas
 * **Machine Learning Techniques Used:** Decision Tree Regressor, Random Forest Regressor, Linear Regression, SVM 
 * **Data source:** Yahoo! Finance
 """)
@@ -44,7 +44,7 @@ expander_bar.markdown("""
 
 plt.style.use('bmh')
 
-START = "2020-01-01"
+START = "2019-01-01"
 TODAY = date.today().strftime('%Y-%m-%d')
 
 @st.cache
@@ -54,7 +54,7 @@ def load_data(ticker):
     return data
 
 st.sidebar.subheader("""User Input Features""")
-selected_stock = st.sidebar.text_input("Enter a valid stock ticker...", "GOOG", max_chars=5)
+selected_stock = st.sidebar.text_input("Enter a valid stock ticker...", "GOOG", max_chars=4)
 
 data_load_state = st.text("Load Data...")
 data = load_data(selected_stock)
@@ -83,7 +83,6 @@ def plot_raw_data():
     fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA5'], name='SMA5'))
     fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA20'], name='SMA20'))
     fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA50'], name='SMA50'))
-    
     fig.layout.update(title_text="Time Series Data - Closing Price", xaxis_rangeslider_visible=True)
     st.plotly_chart(fig)
 plot_raw_data()
@@ -120,7 +119,6 @@ df2 = data.copy()
 df2 = df2[['Close']]
 
 future_days = 25
-
 df2['Prediction'] = df2[['Close']].shift(-future_days)
 
 X = np.array(df2.drop(['Prediction'], 1))[:-future_days]
@@ -148,98 +146,52 @@ svr_score = svr.predict(X_test)
 
 st.header("""**Regression Models** for """ + selected_stock)
 
-predictions = dtr_pred
-valid = df2[X.shape[0]:]
-valid['Predictions'] = predictions
-plt.figure(figsize=(16,8))
-plt.title('Decision Tree Regressor')
-plt.xlabel('Days')
-plt.ylabel('Closing Price USD ($)')
-plt.plot(df2['Close'])
-plt.plot(valid[['Close', 'Predictions']])
-plt.legend(['Orginial Data', 'Validation Data', 'Predicted Value'])
-st.set_option('deprecation.showPyplotGlobalUse', False)
-st.pyplot()
+def graph_prediction(pred, title):
+    predictions = pred
+    valid = df2[X.shape[0]:]
+    valid['Predictions'] = predictions
+    plt.figure(figsize=(16,8))
+    plt.title(title)
+    plt.xlabel('Days')
+    plt.ylabel('Closing Price USD ($)')
+    plt.plot(df2['Close'])
+    plt.plot(valid[['Close', 'Predictions']])
+    plt.legend(['Orginial Data', 'Validation Data', 'Predicted Data'])
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    st.pyplot()
 
-st.subheader('Decision Tree Regressor: Predictive Stock Price in 25 Days')
-st.text(dtr_pred[24])
-st.subheader('R^2 Score')
-st.text(r2_score(y_test, dtr_score))
-st.subheader('RMSE')
-st.text(np.sqrt(mean_squared_error(y_test,dtr_score)))
+def results_prediction(pred, score):
+    results = [{'25th Day Prediction': pred[24], 'r^2 score': r2_score(y_test, score), 'RMSE': np.sqrt(mean_squared_error(y_test, score))}]
+    results_df = pd.DataFrame(results)
+    st.write(results_df)
 
-st.write('---')
+col1, col2 = st.beta_columns(2)
 
-predictions = rf_pred
-valid = df2[X.shape[0]:]
-valid['Predictions'] = predictions
-plt.figure(figsize=(16,8))
-plt.title('Random Forest Regressor')
-plt.xlabel('Days')
-plt.ylabel('Closing Price USD ($)')
-plt.plot(df2['Close'])
-plt.plot(valid[['Close', 'Predictions']])
-plt.legend(['Orginial Data', 'Validation Data', 'Predicted Value'])
-st.set_option('deprecation.showPyplotGlobalUse', False)
-st.pyplot()
+with col1:
+    st.subheader("Decison Tree Regressor")
+    graph_prediction(dtr_pred, 'Decison Tree Regressor')
+    results_prediction(dtr_pred, dtr_score)
+    st.subheader("Linear Regression")
+    graph_prediction(lr_pred, 'Linear Regression')
+    results_prediction(lr_pred, lr_score)
 
-st.subheader('Random Forest Regressor: Predictive Stock Price in 25 Days')
-st.text(rf_pred[24])
-st.subheader('R^2 Score')
-st.text(r2_score(y_test, rf_score))
-st.subheader('RMSE')
-st.text(np.sqrt(mean_squared_error(y_test,rf_score)))
+with col2:
+    st.subheader("Random Forest Regressor")
+    graph_prediction(rf_pred, 'Random Forest Regressor')
+    results_prediction(rf_pred, rf_score)
+    st.subheader("SVM Regressor")
+    graph_prediction(svr_pred, 'Support vector Machines (SVM) Regressor')
+    results_prediction(svr_pred, svr_score)
 
-st.write('---')
-
-predictions = lr_pred
-valid = df2[X.shape[0]:]
-valid['Predictions'] = predictions
-plt.figure(figsize=(16,8))
-plt.title('Linear Regression')
-plt.xlabel('Days')
-plt.ylabel('Closing Price USD ($)')
-plt.plot(df2['Close'])
-plt.plot(valid[['Close', 'Predictions']])
-plt.legend(['Orginial Data', 'Validation Data', 'Predicted Value'])
-st.set_option('deprecation.showPyplotGlobalUse', False)
-st.pyplot()
-
-st.subheader('Linear Regression: Predictive Stock Price in 25 Days')
-st.text(lr_pred[24])
-st.subheader('R^2 Score')
-st.text(r2_score(y_test, lr_score))
-st.subheader('RMSE')
-st.text(np.sqrt(mean_squared_error(y_test,lr_score)))
-
-st.write('---')
-
-predictions = svr_pred
-valid = df2[X.shape[0]:]
-valid['Predictions'] = predictions
-plt.figure(figsize=(16,8))
-plt.title('Support Vector Machines (SVM) Regressor')
-plt.xlabel('Days')
-plt.ylabel('Closing Price USD ($)')
-plt.plot(df2['Close'])
-plt.plot(valid[['Close', 'Predictions']])
-plt.legend(['Orginial Data', 'Validation Data', 'Predicted Value'])
-st.set_option('deprecation.showPyplotGlobalUse', False)
-st.pyplot()
-
-st.subheader('SVM Regressor: Predictive Stock Price in 25 Days')
-st.text(svr_pred[24])
-st.subheader('R^2 Score')
-st.text(r2_score(y_test, svr_score))
-st.subheader('RMSE')
-st.text(np.sqrt(mean_squared_error(y_test,svr_score)))
-
-
-
-
-
-
-
-
-
-
+if st.button('Large Graph Option'):
+    graph_prediction(dtr_pred, 'Decison Tree Regressor')
+    results_prediction(dtr_pred, dtr_score)
+    st.write('---')
+    graph_prediction(rf_pred, 'Random Forest Regressor')
+    results_prediction(rf_pred, rf_score)
+    st.write('---')
+    graph_prediction(lr_pred, 'Linear Regression')
+    results_prediction(lr_pred, lr_score)
+    st.write('---')
+    graph_prediction(svr_pred, 'Support vector Machines (SVM) Regressor')
+    results_prediction(svr_pred, svr_score)
