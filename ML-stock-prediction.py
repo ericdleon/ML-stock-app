@@ -23,7 +23,7 @@ st.write("""
          Author : Eric Deleon
          """)
 
-expander_bar = st.beta_expander("About Application")
+expander_bar = st.beta_expander("About the Application")
 expander_bar.markdown("""
 * **Python libraries:** yfinace, datetime, base64, numpy, matplotlib, seaborn, streamlit, sklearn, plotly, pandas
 * **Machine Learning Techniques Used:** Decision Tree Regressor, Random Forest Regressor, Linear Regression, SVM 
@@ -54,12 +54,12 @@ def load_data(ticker):
     return data
 
 st.sidebar.subheader("""User Input Features""")
-selected_stock = st.sidebar.text_input("Enter a valid stock ticker...", "GOOG", max_chars=4)
+selected_stock = st.sidebar.text_input("Enter a valid stock ticker...", "GOOG", max_chars=5)
 
 data_load_state = st.text("Load Data...")
 data = load_data(selected_stock)
 data_load_state.text("Loading data...done")
-st.subheader('Raw Data')
+st.subheader("""**Raw Data** for """ + selected_stock)
 
 st.write(data.tail())
 
@@ -193,5 +193,5 @@ if st.button('Large Graph Option'):
     graph_prediction(lr_pred, 'Linear Regression')
     results_prediction(lr_pred, lr_score)
     st.write('---')
-    graph_prediction(svr_pred, 'Support vector Machines (SVM) Regressor')
+    graph_prediction(svr_pred, 'Support Vector Machines (SVM) Regressor')
     results_prediction(svr_pred, svr_score)
