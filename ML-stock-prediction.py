@@ -15,6 +15,9 @@ from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 
+from sklearn.preprocessing import StandardScaler
+
+
 st.write("""
          # Stock Price Predicition App
          This app predicts the **Stock Closing Price** using different Machine Learning Algorithms
@@ -116,9 +119,9 @@ st.pyplot()
 st.write('---')
 
 df2 = data.copy()
-df2 = df2[['Close']]
 
-future_days = 25
+df2 = df2[['Close']]
+future_days = 31
 df2['Prediction'] = df2[['Close']].shift(-future_days)
 
 X = np.array(df2.drop(['Prediction'], 1))[:-future_days]
@@ -161,9 +164,10 @@ def graph_prediction(pred, title):
     st.pyplot()
 
 def results_prediction(pred, score):
-    results = [{'25th Day Prediction': pred[24], 'r^2 score': r2_score(y_test, score), 'RMSE': np.sqrt(mean_squared_error(y_test, score))}]
+    results = [{'1-Day Forecast': pred[0],'1-Week Forecast': pred[6], '1-Month Forecast': pred[30], 'R-Squared Score': r2_score(y_test, score), 'RMSE': np.sqrt(mean_squared_error(y_test, score))}]
     results_df = pd.DataFrame(results)
-    st.write(results_df)
+    results_df_transposed = results_df.T
+    st.write(results_df_transposed)
 
 col1, col2 = st.beta_columns(2)
 
@@ -183,7 +187,7 @@ with col2:
     graph_prediction(svr_pred, 'Support vector Machines (SVM) Regressor')
     results_prediction(svr_pred, svr_score)
 
-if st.button('Large Graph Option'):
+if st.button('Large Graph Option - For PC Screens'):
     graph_prediction(dtr_pred, 'Decison Tree Regressor')
     results_prediction(dtr_pred, dtr_score)
     st.write('---')
