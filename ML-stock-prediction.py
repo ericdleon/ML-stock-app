@@ -111,7 +111,7 @@ st.subheader("""Pearson Correlation Coefficient for """ + selected_stock)
 corr = data.corr(method='pearson')       
 st.write(corr)
 
-st.subheader("""Confusion Matrix for """ + selected_stock)
+st.subheader("""Correlation Heatmap for """ + selected_stock)
 st.write(sb.heatmap(corr,xticklabels=corr.columns, yticklabels=corr.columns, cmap='RdBu_r', annot=True, linewidth=0.5))
 st.set_option('deprecation.showPyplotGlobalUse', False)
 st.pyplot()
