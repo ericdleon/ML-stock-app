@@ -19,7 +19,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 st.write("""
-         # Stock Price Predicition App
+         # Stock Price Prediction App
          This app predicts the **Stock Closing Price** using different Machine Learning Algorithms
          """)
 st.write("""
