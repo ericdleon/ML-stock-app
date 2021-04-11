@@ -1,3 +1,8 @@
+#************************************************#
+#              Libraries Used                    #
+#                                                #
+#************************************************#
+
 import streamlit as st
 import yfinance as yf
 from datetime import date
@@ -14,10 +19,15 @@ from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
-
 from sklearn.preprocessing import StandardScaler
 
 
+#************************************************#
+#         Introductory to Project                #
+#                                                #
+#************************************************#
+
+# "st" refers to streamlit which creates the UI
 st.write("""
          # Stock Price Prediction App
          This app predicts the **Stock Closing Price** using different Machine Learning Algorithms
@@ -45,41 +55,72 @@ expander_bar.markdown("""
         
 """)
 
-plt.style.use('bmh')
 
+#************************************************#
+#             Fetching the Data                  #
+#                                                #
+#************************************************#
+
+
+plt.style.use('bmh') # PLT STYLE
+
+# Variables to Fetch Data: Between 2019 to Current Date
 START = "2019-01-01"
 TODAY = date.today().strftime('%Y-%m-%d')
 
+# st.cache = cache data being looked at. This makes loading previously seen data load faster.
 @st.cache
 def load_data(ticker):
+    # data = the stock ticker data found in Yahoo!Finace and how much of the data you want.
     data = yf.download(ticker, START, TODAY)
+    # Resets the index of the data
     data.reset_index(inplace=True)
-    return data
+    return data # This will return the stock ticker data between 2019 and Current Date
 
+# The sidebar where the User can interact with.
 st.sidebar.subheader("""User Input Features""")
+# The default stock ticker, or selected stock, that is loaded is GOOGL and the max input of a valid stock ticker is 5. Ex: VWAGY, AAPL, FB
 selected_stock = st.sidebar.text_input("Enter a valid stock ticker...", "GOOG", max_chars=5)
 
+# Load the Data
 data_load_state = st.text("Load Data...")
 data = load_data(selected_stock)
 data_load_state.text("Loading data...done")
 st.subheader("""**Raw Data** for """ + selected_stock)
 
+# Show the last items in the dataset (i.e., most recent data)
 st.write(data.tail())
 
+# This method enables the user to download the dataset of any valid stock ticker
 def filedownload(df):
+    # Turn df, or data, into .csv file
     csv = df.to_csv(index=False)
+    # Encode in browser
     b64 = base64.b64encode(csv.encode()).decode() # strongs <-> vytes conversions
+    # Create link to the .csv file
     href = f'<a href="data:file/csv;base64,{b64}" download="{selected_stock}_data.csv">Download CSV File</a>'
     return href
+
+# Adds button that enables a user to download the data
 st.markdown(filedownload(data), unsafe_allow_html=True)
 st.write('---')
 
+
+#************************************************#
+#        Simple Moving Average Section           #
+#                                                #
+#************************************************#
+
+# Copying the raw data into another dataframe
 df = data.copy()
+# The next three lines are used to get the Simple Moving Average for 5, 20, and 50 Days for the Closing Price.
 df['SMA5'] = df.Close.rolling(5).mean()
 df['SMA20'] = df.Close.rolling(20).mean()
 df['SMA50'] = df.Close.rolling(50).mean()
 
 st.subheader("""Daily **closing price** for """ + selected_stock)
+
+# This method is to plot df into an interactive time series graph. 
 def plot_raw_data():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df['Date'], y=df['Close'], name='closing price'))
@@ -96,6 +137,8 @@ st.write("""
          * SMA50 : Simple Moving Average - 50 Days
          """)
 
+# This is used to save loading time. This is optional information that the user can load.
+# If the user clicks this button, it will load the Volume Data Graph.
 if st.button("""Daily Volume for """ + selected_stock):
     st.subheader("""Daily **volume** for """ + selected_stock)
     def plot_raw_volume_data():
@@ -106,6 +149,13 @@ if st.button("""Daily Volume for """ + selected_stock):
     plot_raw_volume_data()
 
 st.write('---')
+
+
+#************************************************#
+#      Pearson Correltion & Heatmap Section      #
+#                                                #
+#************************************************#
+
 
 st.subheader("""Pearson Correlation Coefficient for """ + selected_stock)
 corr = data.corr(method='pearson')       
@@ -118,6 +168,13 @@ st.pyplot()
 
 st.write('---')
 
+
+#************************************************#
+#          Machine Learning Section              #
+#                                                #
+#************************************************#
+
+
 df2 = data.copy()
 
 df2 = df2[['Close']]
@@ -127,25 +184,30 @@ df2['Prediction'] = df2[['Close']].shift(-future_days)
 X = np.array(df2.drop(['Prediction'], 1))[:-future_days]
 y = np.array(df2['Prediction'])[:-future_days]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.7, test_size=0.3, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.7, test_size=0.3, random_state=1)
 
-dtr = DecisionTreeRegressor().fit(X_train, y_train)
-rf = RandomForestRegressor().fit(X_train, y_train)
-lr = LinearRegression().fit(X_train, y_train)
-svr = SVR(kernel='rbf').fit(X_train, y_train)
+sc_X = StandardScaler()
+X_trainscaled=sc_X.fit_transform(X_train)
+X_testscaled=sc_X.transform(X_test)
+
+
+dtr = DecisionTreeRegressor().fit(X_trainscaled, y_train)
+rf = RandomForestRegressor().fit(X_trainscaled, y_train)
+lr = LinearRegression().fit(X_trainscaled, y_train)
+svr = SVR(kernel='rbf').fit(X_trainscaled, y_train)
 
 x_future = df2.drop(['Prediction'], 1)[:-future_days]
 x_future = x_future.tail(future_days)
 x_future = np.array(x_future)
 
 dtr_pred = dtr.predict(x_future)
-dtr_score = dtr.predict(X_test)
+dtr_score = dtr.predict(X_testscaled)
 rf_pred = rf.predict(x_future)
-rf_score = rf.predict(X_test)
+rf_score = rf.predict(X_testscaled)
 lr_pred = lr.predict(x_future)
-lr_score = lr.predict(X_test)
+lr_score = lr.predict(X_testscaled)
 svr_pred = svr.predict(x_future)
-svr_score = svr.predict(X_test)
+svr_score = svr.predict(X_testscaled)
 
 st.header("""**Regression Models** for """ + selected_stock)
 
