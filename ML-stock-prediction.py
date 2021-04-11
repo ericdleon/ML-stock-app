@@ -186,28 +186,24 @@ y = np.array(df2['Prediction'])[:-future_days]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.7, test_size=0.3, random_state=1)
 
-sc_X = StandardScaler()
-X_trainscaled=sc_X.fit_transform(X_train)
-X_testscaled=sc_X.transform(X_test)
 
-
-dtr = DecisionTreeRegressor().fit(X_trainscaled, y_train)
-rf = RandomForestRegressor().fit(X_trainscaled, y_train)
-lr = LinearRegression().fit(X_trainscaled, y_train)
-svr = SVR(kernel='rbf').fit(X_trainscaled, y_train)
+dtr = DecisionTreeRegressor().fit(X_train, y_train)
+rf = RandomForestRegressor().fit(X_train, y_train)
+lr = LinearRegression().fit(X_train, y_train)
+svr = SVR(kernel='rbf').fit(X_train, y_train)
 
 x_future = df2.drop(['Prediction'], 1)[:-future_days]
 x_future = x_future.tail(future_days)
 x_future = np.array(x_future)
 
 dtr_pred = dtr.predict(x_future)
-dtr_score = dtr.predict(X_testscaled)
+dtr_score = dtr.predict(X_test)
 rf_pred = rf.predict(x_future)
-rf_score = rf.predict(X_testscaled)
+rf_score = rf.predict(X_test)
 lr_pred = lr.predict(x_future)
-lr_score = lr.predict(X_testscaled)
+lr_score = lr.predict(X_test)
 svr_pred = svr.predict(x_future)
-svr_score = svr.predict(X_testscaled)
+svr_score = svr.predict(X_test)
 
 st.header("""**Regression Models** for """ + selected_stock)
 
