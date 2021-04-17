@@ -8,7 +8,7 @@ import yfinance as yf
 from datetime import date
 import base64
 from plotly import graph_objs as go
-import seaborn as sb
+import seaborn as sns
 import numpy as np 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -120,7 +120,7 @@ df['SMA50'] = df.Close.rolling(50).mean()
 
 st.subheader("""Daily **closing price** for """ + selected_stock)
 
-# This method is to plot df into an interactive time series graph. 
+# This method plots df into an interactive time series graph. 
 def plot_raw_data():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df['Date'], y=df['Close'], name='closing price'))
@@ -152,7 +152,7 @@ st.write('---')
 
 
 #************************************************#
-#      Pearson Correltion & Heatmap Section      #
+#      Pearson Correlation & Heatmap Section      #
 #                                                #
 #************************************************#
 
@@ -162,7 +162,7 @@ corr = data.corr(method='pearson')
 st.write(corr)
 
 st.subheader("""Correlation Heatmap for """ + selected_stock)
-st.write(sb.heatmap(corr,xticklabels=corr.columns, yticklabels=corr.columns, cmap='RdBu_r', annot=True, linewidth=0.5))
+st.write(sns.heatmap(corr,xticklabels=corr.columns, yticklabels=corr.columns, cmap='RdBu_r', annot=True, linewidth=0.5))
 st.set_option('deprecation.showPyplotGlobalUse', False)
 st.pyplot()
 
@@ -232,7 +232,7 @@ col1, col2 = st.beta_columns(2)
 with col1:
     st.subheader("Decison Tree Regressor")
     graph_prediction(dtr_pred, 'Decison Tree Regressor')
-    results_prediction(dtr_pred, dtr_score)
+    results_prediction(dtr_pred, dtr_pred)
     st.subheader("Linear Regression")
     graph_prediction(lr_pred, 'Linear Regression')
     results_prediction(lr_pred, lr_score)
