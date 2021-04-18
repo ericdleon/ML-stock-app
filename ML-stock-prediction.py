@@ -176,8 +176,10 @@ st.write('---')
 
 
 df2 = data.copy()
-
 df2 = df2[['Close']]
+
+
+
 future_days = 31
 df2['Prediction'] = df2[['Close']].shift(-future_days)
 
@@ -188,9 +190,10 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.7, test
 
 
 dtr = DecisionTreeRegressor().fit(X_train, y_train)
-rf = RandomForestRegressor().fit(X_train, y_train)
+rf = RandomForestRegressor(n_estimators = 300, max_depth =300).fit(X_train, y_train)
 lr = LinearRegression().fit(X_train, y_train)
 svr = SVR(kernel='rbf').fit(X_train, y_train)
+
 
 x_future = df2.drop(['Prediction'], 1)[:-future_days]
 x_future = x_future.tail(future_days)
