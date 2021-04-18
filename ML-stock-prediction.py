@@ -232,7 +232,7 @@ col1, col2 = st.beta_columns(2)
 with col1:
     st.subheader("Decison Tree Regressor")
     graph_prediction(dtr_pred, 'Decison Tree Regressor')
-    results_prediction(dtr_pred, dtr_pred)
+    results_prediction(dtr_pred, dtr_score)
     st.subheader("Linear Regression")
     graph_prediction(lr_pred, 'Linear Regression')
     results_prediction(lr_pred, lr_score)
