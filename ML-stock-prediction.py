@@ -112,21 +112,21 @@ st.write('---')
 #************************************************#
 
 # Copying the raw data into another dataframe
-df = data.copy()
+sma = data.copy()
 # The next three lines are used to get the Simple Moving Average for 5, 20, and 50 Days for the Closing Price.
-df['SMA5'] = df.Close.rolling(5).mean()
-df['SMA20'] = df.Close.rolling(20).mean()
-df['SMA50'] = df.Close.rolling(50).mean()
+sma['SMA5'] = sma.Close.rolling(5).mean()
+sma['SMA20'] = sma.Close.rolling(20).mean()
+sma['SMA50'] = sma.Close.rolling(50).mean()
 
 st.subheader("""Daily **closing price** for """ + selected_stock)
 
 # This method plots df into an interactive time series graph. 
 def plot_raw_data():
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=df['Date'], y=df['Close'], name='closing price'))
-    fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA5'], name='SMA5'))
-    fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA20'], name='SMA20'))
-    fig.add_trace(go.Scatter(x=df['Date'], y=df['SMA50'], name='SMA50'))
+    fig.add_trace(go.Scatter(x=sma['Date'], y=sma['Close'], name='closing price'))
+    fig.add_trace(go.Scatter(x=sma['Date'], y=sma['SMA5'], name='SMA5'))
+    fig.add_trace(go.Scatter(x=sma['Date'], y=sma['SMA20'], name='SMA20'))
+    fig.add_trace(go.Scatter(x=sma['Date'], y=sma['SMA50'], name='SMA50'))
     fig.layout.update(title_text="Time Series Data - Closing Price", xaxis_rangeslider_visible=True)
     st.plotly_chart(fig)
 plot_raw_data()
@@ -174,30 +174,36 @@ st.write('---')
 #                                                #
 #************************************************#
 
+forecast = 31
 
-df2 = data.copy()
-df2 = df2[['Close']]
+df = data.copy()
 
+df['Date'] = pd.to_numeric(df['Date'])
+df['Date'] = df['Date'].tolist()
 
+df['Prediction'] = df[['Close']].shift(-forecast)
+X = np.array(data.drop(['Prediction'], 1))[:-forecast]
+y = np.array(data['Prediction'])[:-forecast]
 
-future_days = 31
-df2['Prediction'] = df2[['Close']].shift(-future_days)
+x_future = df.drop(['Prediction'], 1)[:-forecast]
+x_future = x_future.tail(forecast)
+x_future = np.array(x_future)
 
-X = np.array(df2.drop(['Prediction'], 1))[:-future_days]
-y = np.array(df2['Prediction'])[:-future_days]
+#df2['Prediction'] = df2[['Close']].shift(-future_days)
+#X = np.array(df2.drop(['Prediction'], 1))[:-future_days]
+#y = np.array(df2['Prediction'])[:-future_days]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.7, test_size=0.3, random_state=1)
 
+sc = StandardScaler()
+X_train = sc.fit_transform(X_train)
+X_test = sc.fit_transform(X_test)
 
 dtr = DecisionTreeRegressor().fit(X_train, y_train)
 rf = RandomForestRegressor(n_estimators = 300, max_depth =300).fit(X_train, y_train)
 lr = LinearRegression().fit(X_train, y_train)
 svr = SVR(kernel='rbf').fit(X_train, y_train)
 
-
-x_future = df2.drop(['Prediction'], 1)[:-future_days]
-x_future = x_future.tail(future_days)
-x_future = np.array(x_future)
 
 dtr_pred = dtr.predict(x_future)
 dtr_score = dtr.predict(X_test)
