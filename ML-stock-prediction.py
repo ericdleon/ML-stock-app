@@ -178,8 +178,7 @@ forecast = 31
 
 df = data.copy()
 
-df['Date'] = pd.to_numeric(df['Date'])
-df['Date'] = df['Date'].tolist()
+df = df[['Close']]
 
 df['Prediction'] = df[['Close']].shift(-forecast)
 X = np.array(df.drop(['Prediction'], 1))[:-forecast]
@@ -194,10 +193,6 @@ x_future = np.array(x_future)
 #y = np.array(df2['Prediction'])[:-future_days]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.7, test_size=0.3, random_state=1)
-
-sc = StandardScaler()
-X_train = sc.fit_transform(X_train)
-X_test = sc.fit_transform(X_test)
 
 dtr = DecisionTreeRegressor().fit(X_train, y_train)
 rf = RandomForestRegressor(n_estimators = 300, max_depth =300).fit(X_train, y_train)
