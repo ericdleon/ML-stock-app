@@ -182,8 +182,8 @@ df['Date'] = pd.to_numeric(df['Date'])
 df['Date'] = df['Date'].tolist()
 
 df['Prediction'] = df[['Close']].shift(-forecast)
-X = np.array(data.drop(['Prediction'], 1))[:-forecast]
-y = np.array(data['Prediction'])[:-forecast]
+X = np.array(df.drop(['Prediction'], 1))[:-forecast]
+y = np.array(df['Prediction'])[:-forecast]
 
 x_future = df.drop(['Prediction'], 1)[:-forecast]
 x_future = x_future.tail(forecast)
