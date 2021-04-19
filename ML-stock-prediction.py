@@ -219,13 +219,13 @@ st.header("""**Regression Models** for """ + selected_stock)
 def graph_prediction(pred, title):
     predictions = pred
     valid = df[X.shape[0]:]
-    valid['Predictions'] = predictions
+    valid['Prediction'] = predictions
     plt.figure(figsize=(16,8))
     plt.title(title)
     plt.xlabel('Days')
     plt.ylabel('Closing Price USD ($)')
     plt.plot(df['Close'])
-    plt.plot(valid[['Close', 'Predictions']])
+    plt.plot(valid[['Close', 'Prediction']])
     plt.legend(['Orginial Data', 'Validation Data', 'Predicted Data'])
     st.set_option('deprecation.showPyplotGlobalUse', False)
     st.pyplot()
