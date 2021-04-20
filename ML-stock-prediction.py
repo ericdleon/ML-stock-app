@@ -184,7 +184,8 @@ df = data.copy()
 
 # If ticker data is less than 100 don't show Graphs (Ex: RBLX or COIN)
 if len(df) < 100:
-    st.write("Relatively new ticker, not enough data")
+    st.write("Relatively new ticker, not enough data to perform ML Techniques")
+    exit()
 
 # Predict/forecast 31 days into the future
 forecast = 31
