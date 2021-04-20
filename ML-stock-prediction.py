@@ -2,16 +2,24 @@
 #              Libraries Used                    #
 #                                                #
 #************************************************#
-
+# UI for application
 import streamlit as st
+
+# The Data
 import yfinance as yf
+
+# Preprocessing Data
 from datetime import date
 import base64
+import numpy as np 
+import pandas as pd
+
+# Graphing Libraries
 from plotly import graph_objs as go
 import seaborn as sns
-import numpy as np 
 import matplotlib.pyplot as plt
-import pandas as pd
+
+# Machine Learning Libraries: Models, Splitting, Evaluating
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -154,17 +162,17 @@ st.write('---')
 #                                                #
 #************************************************#
 
-
-st.subheader("""Pearson Correlation Coefficient for """ + selected_stock)
-corr = data.corr(method='pearson')       
-st.write(corr)
-
-st.subheader("""Correlation Heatmap for """ + selected_stock)
-st.write(sns.heatmap(corr,xticklabels=corr.columns, yticklabels=corr.columns, cmap='RdBu_r', annot=True, linewidth=0.5))
-st.set_option('deprecation.showPyplotGlobalUse', False)
-st.pyplot()
-
-st.write('---')
+if st.button("""Pearson Correlation & Heatmap"""):
+    st.subheader("""Pearson Correlation Coefficient for """ + selected_stock)
+    corr = data.corr(method='pearson')       
+    st.write(corr)
+    
+    st.subheader("""Correlation Heatmap for """ + selected_stock)
+    st.write(sns.heatmap(corr,xticklabels=corr.columns, yticklabels=corr.columns, cmap='RdBu_r', annot=True, linewidth=0.5))
+    st.set_option('deprecation.showPyplotGlobalUse', False)
+    st.pyplot()
+    
+    st.write('---')
 
 
 #************************************************#
@@ -172,41 +180,51 @@ st.write('---')
 #                                                #
 #************************************************#
 
+df = data.copy()
+
+# Predict/forecast 31 days into the future
 forecast = 31
 
-df = data.copy()
+# Keep Date and Close columns
 df = df[['Date','Close']]
+# Create Prediction/target column and shift 31 days up
 df['Prediction'] = df[['Close']].shift(-forecast)
 
+# Create feature dataset (X), convert to numpy array, remove the last 31 days
 X = np.array(df.drop(['Prediction', 'Date'], 1))[:-forecast]
+# Create target dataset (y), convert to numpy array, remove the last 31 days
 y = np.array(df['Prediction'])[:-forecast]
 
+# Get the last 31 rows of the feature dataset
 x_future = df.drop(['Prediction','Date'], 1)[:-forecast]
 x_future = x_future.tail(forecast)
 x_future = np.array(x_future)
 
+# Split the data to 70% Training, 30% Testing
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.7, test_size=0.3, random_state=1)
 
+# Creating the models
 dtr = DecisionTreeRegressor().fit(X_train, y_train)
 rf = RandomForestRegressor().fit(X_train, y_train)
 lr = LinearRegression().fit(X_train, y_train)
 svr = SVR(kernel='rbf').fit(X_train, y_train)
 
+## Prediction Section
+# Model Prediction for Decision Tree
+dtr_pred = dtr.predict(x_future) # Predicting values from x_future | Visualizing
+dtr_score = dtr.predict(X_test) # Evaluating the model
 
-dtr_pred = dtr.predict(x_future)
-dtr_score = dtr.predict(X_test)
+# Model Prediction for Random Forest
+rf_pred = rf.predict(x_future) # Predicting values from x_future | Visualizing
+rf_score = rf.predict(X_test) # Evaluating the model
 
+# Model Prediction for Linear Regression
+lr_pred = lr.predict(x_future) # Predicting values from x_future | Visualizing
+lr_score = lr.predict(X_test) # Evaluating the model
 
-rf_pred = rf.predict(x_future)
-rf_score = rf.predict(X_test)
-
-
-lr_pred = lr.predict(x_future)
-lr_score = lr.predict(X_test)
-
-
-svr_pred = svr.predict(x_future)
-svr_score = svr.predict(X_test)
+# Model Prediction for SVM
+svr_pred = svr.predict(x_future) # Predicting values from x_future | Visualizing
+svr_score = svr.predict(X_test) # Evaluating the model
 
 st.header("""**Regression Models** for """ + selected_stock)
 
@@ -239,9 +257,9 @@ def results_prediction(pred, score):
 
 
 if st.button("""Process for Obtaining Graphs"""):
-    st.write("1: Create a new df with Date and Close | 2: Add Predictions Column and Shift 31 Days")
+    st.write("1: Create a new df with Date and Close, Add Predictions Column and Shift 31 Days")
     st.write(df.tail(31))
-    st.write("3: Breakdown df into features (X) and target (y)")
+    st.write("2: Breakdown df into features (X) and target (y).")
     col1, col2 = st.beta_columns(2)
     with col1:
         st.subheader("X")
@@ -249,18 +267,18 @@ if st.button("""Process for Obtaining Graphs"""):
     with col2:
         st.subheader("y")
         st.write(y)
-    st.write("4: Breakdown df into x_future")
+    st.write("3: Breakdown df into x_future: Get the last 31 rows of the feature dataset")
     st.write(x_future)
-    st.write("5: Separate Train and Test Data")
+    st.write("4: Separate Train and Test Data")
     col3, col4 = st.beta_columns(2)
     with col3:
-        st.subheader("Train Data (70%)")
+        st.subheader("Training Data (70%)")
         st.write("X_train")
         st.write(X_train.shape)
         st.write("y_train")
         st.write(y_train.shape)
     with col4:
-        st.subheader("Test Data (30%)")
+        st.subheader("Testing Data (30%)")
         st.write("X_test")
         st.write(X_test.shape)
         st.write("y_test")
