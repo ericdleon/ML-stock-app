@@ -185,10 +185,6 @@ x_future = df.drop(['Prediction','Date'], 1)[:-forecast]
 x_future = x_future.tail(forecast)
 x_future = np.array(x_future)
 
-#df2['Prediction'] = df2[['Close']].shift(-future_days)
-#X = np.array(df2.drop(['Prediction'], 1))[:-future_days]
-#y = np.array(df2['Prediction'])[:-future_days]
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.7, test_size=0.3, random_state=1)
 
 dtr = DecisionTreeRegressor().fit(X_train, y_train)
@@ -239,7 +235,6 @@ def results_prediction(pred, score):
                 }]
     results_df = pd.DataFrame(results)
     results_df_transposed = results_df.T
-    
     st.write(results_df_transposed)
 
 
@@ -257,12 +252,21 @@ if st.button("""Process for Obtaining Graphs"""):
     st.write("4: Breakdown df into x_future")
     st.write(x_future)
     st.write("5: Separate Train and Test Data")
-    with col1:
-        st.subheader("Train")
-        st.write(X)  
-    with col2:
-        st.subheader("Test")
-        st.write(y)
+    col3, col4 = st.beta_columns(2)
+    with col3:
+        st.subheader("Train Data (70%)")
+        st.write("X_train")
+        st.write(X_train.shape())
+        st.write("y_train")
+        st.write(y_train.shape())
+    with col4:
+        st.subheader("Test Data (30%)")
+        st.write("X_test")
+        st.write(X_test.shape())
+        st.write("y_test")
+        st.write(y_test.shape()) 
+      
+        
 
 
 col1, col2 = st.beta_columns(2)
