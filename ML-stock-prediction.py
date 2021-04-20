@@ -50,8 +50,7 @@ expander_bar.markdown("""
         * Low: The lowest price at which the stock is traded on Date.
         * Close: The last trade price on Date
         * Adj Close: This is defined as the closing price after all dividends are split.
-        * Volume: The number of shares traded on Date.
-        
+        * Volume: The number of shares traded on Date. 
 """)
 
 
@@ -110,7 +109,7 @@ st.write('---')
 #                                                #
 #************************************************#
 
-# Copying the raw data into another dataframe
+# Copying the raw data df into another dataframe
 sma = data.copy()
 # The next three lines are used to get the Simple Moving Average for 5, 20, and 50 Days for the Closing Price.
 sma['SMA5'] = sma.Close.rolling(5).mean()
@@ -151,7 +150,7 @@ st.write('---')
 
 
 #************************************************#
-#      Pearson Correlation & Heatmap Section      #
+#      Pearson Correlation & Heatmap Section     #
 #                                                #
 #************************************************#
 
@@ -176,10 +175,9 @@ st.write('---')
 forecast = 31
 
 df = data.copy()
-
 df = df[['Date','Close']]
-
 df['Prediction'] = df[['Close']].shift(-forecast)
+
 X = np.array(df.drop(['Prediction', 'Date'], 1))[:-forecast]
 y = np.array(df['Prediction'])[:-forecast]
 
@@ -243,6 +241,12 @@ def results_prediction(pred, score):
     results_df_transposed = results_df.T
     
     st.write(results_df_transposed)
+
+if st.button("""**Process** for Obtaining Graphs"""):
+    st.write("1: Breakdown Dataset to Date and Close")
+    st.write("2: Create Predictions Column and Shift 31 Days")
+    st.write(df.tail())
+    
 
 col1, col2 = st.beta_columns(2)
 
