@@ -242,10 +242,19 @@ def results_prediction(pred, score):
     
     st.write(results_df_transposed)
 
-if st.button("""**Process** for Obtaining Graphs"""):
-    st.write("1: Breakdown Dataset to Date and Close")
-    st.write("2: Create Predictions Column and Shift 31 Days")
-    st.write(df.tail())
+col1, col2 = st.beta_columns(2)
+
+if st.button("""Process for Obtaining Graphs"""):
+    st.write("1: Create a new df with Date and Close | 2: Add Predictions Column and Shift 31 Days")
+    st.write(df.tail(31))
+    st.write("3: Breakdown df into features (X) and target (y)")
+    with col1:
+        st.subheader("X")
+        st.write(X.tail())  
+    with col2:
+        st.subheader("y")
+        st.write(y.tail())
+
     
 
 col1, col2 = st.beta_columns(2)
