@@ -162,7 +162,7 @@ st.write('---')
 #                                                #
 #************************************************#
 
-if st.button("""Pearson Correlation & Heatmap"""):
+if st.button("""Pearson Correlation & Heatmap for""" + selected_stock):
     st.subheader("""Pearson Correlation Coefficient for """ + selected_stock)
     corr = data.corr(method='pearson')       
     st.write(corr)
@@ -172,7 +172,7 @@ if st.button("""Pearson Correlation & Heatmap"""):
     st.set_option('deprecation.showPyplotGlobalUse', False)
     st.pyplot()
     
-    st.write('---')
+st.write('---')    
 
 
 #************************************************#
@@ -181,6 +181,9 @@ if st.button("""Pearson Correlation & Heatmap"""):
 #************************************************#
 
 df = data.copy()
+
+if len(df) < 30:
+    exit()
 
 # Predict/forecast 31 days into the future
 forecast = 31
@@ -284,26 +287,30 @@ if st.button("""Process for Obtaining Graphs"""):
         st.write("y_test")
         st.write(y_test.shape) 
       
-        
-
-
 col1, col2 = st.beta_columns(2)
-
 
 with col1:
     st.subheader("Decison Tree Regressor")
+    st.write('Visual & Actual vs. Prediction Table') 
     graph_prediction(dtr_pred, 'Decison Tree Regressor')
+    st.write('Day/Week/Month Forecast at-a-glance & Model Metrics') 
     results_prediction(dtr_pred, dtr_score)
     st.subheader("Linear Regression")
+    st.write('Visual & Actual vs. Prediction Table') 
     graph_prediction(lr_pred, 'Linear Regression')
+    st.write('Day/Week/Month Forecast at-a-glance & Model Metrics') 
     results_prediction(lr_pred, lr_score)
 
 with col2:
     st.subheader("Random Forest Regressor")
+    st.write('Visual & Actual vs. Prediction Table') 
     graph_prediction(rf_pred, 'Random Forest Regressor')
+    st.write('Day/Week/Month Forecast at-a-glance & Model Metrics') 
     results_prediction(rf_pred, rf_score)
     st.subheader("SVM Regressor")
+    st.write('Visual & Actual vs. Prediction Table') 
     graph_prediction(svr_pred, 'Support vector Machines (SVM) Regressor')
+    st.write('Day/Week/Month Forecast at-a-glance & Model Metrics') 
     results_prediction(svr_pred, svr_score)
 
 if st.button('Large Graph Option - For PC Screens'):
