@@ -250,11 +250,12 @@ if st.button("""Process for Obtaining Graphs"""):
     st.write("3: Breakdown df into features (X) and target (y)")
     with col1:
         st.subheader("X")
-        st.write(X.tail())  
+        st.write(X)  
     with col2:
         st.subheader("y")
-        st.write(y.tail())
-
+        st.write(y)
+    st.write("4: Breakdown df into x_future")
+    st.write(x_future)
     
 
 col1, col2 = st.beta_columns(2)
