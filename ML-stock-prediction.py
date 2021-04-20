@@ -256,15 +256,15 @@ if st.button("""Process for Obtaining Graphs"""):
     with col3:
         st.subheader("Train Data (70%)")
         st.write("X_train")
-        st.write(X_train.shape())
+        st.write(X_train.shape)
         st.write("y_train")
-        st.write(y_train.shape())
+        st.write(y_train.shape)
     with col4:
         st.subheader("Test Data (30%)")
         st.write("X_test")
-        st.write(X_test.shape())
+        st.write(X_test.shape)
         st.write("y_test")
-        st.write(y_test.shape()) 
+        st.write(y_test.shape) 
       
         
 
