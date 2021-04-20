@@ -162,7 +162,7 @@ st.write('---')
 #                                                #
 #************************************************#
 
-if st.button("""Pearson Correlation & Heatmap for""" + selected_stock):
+if st.button("""Pearson Correlation & Heatmap for """ + selected_stock):
     st.subheader("""Pearson Correlation Coefficient for """ + selected_stock)
     corr = data.corr(method='pearson')       
     st.write(corr)
