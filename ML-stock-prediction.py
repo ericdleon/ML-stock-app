@@ -178,13 +178,13 @@ forecast = 31
 
 df = data.copy()
 
-df = df[['Close']]
+df = df[['Date','Close']]
 
 df['Prediction'] = df[['Close']].shift(-forecast)
-X = np.array(df.drop(['Prediction'], 1))[:-forecast]
+X = np.array(df.drop(['Prediction', 'Date'], 1))[:-forecast]
 y = np.array(df['Prediction'])[:-forecast]
 
-x_future = df.drop(['Prediction'], 1)[:-forecast]
+x_future = df.drop(['Prediction','Date'], 1)[:-forecast]
 x_future = x_future.tail(forecast)
 x_future = np.array(x_future)
 
@@ -195,17 +195,23 @@ x_future = np.array(x_future)
 X_train, X_test, y_train, y_test = train_test_split(X, y, train_size = 0.7, test_size=0.3, random_state=1)
 
 dtr = DecisionTreeRegressor().fit(X_train, y_train)
-rf = RandomForestRegressor(n_estimators = 300, max_depth =300).fit(X_train, y_train)
+rf = RandomForestRegressor().fit(X_train, y_train)
 lr = LinearRegression().fit(X_train, y_train)
 svr = SVR(kernel='rbf').fit(X_train, y_train)
 
 
 dtr_pred = dtr.predict(x_future)
 dtr_score = dtr.predict(X_test)
+
+
 rf_pred = rf.predict(x_future)
 rf_score = rf.predict(X_test)
+
+
 lr_pred = lr.predict(x_future)
 lr_score = lr.predict(X_test)
+
+
 svr_pred = svr.predict(x_future)
 svr_score = svr.predict(X_test)
 
@@ -214,6 +220,7 @@ st.header("""**Regression Models** for """ + selected_stock)
 def graph_prediction(pred, title):
     predictions = pred
     valid = df[X.shape[0]:]
+    st.write(valid)
     valid['Prediction'] = predictions
     plt.figure(figsize=(16,8))
     plt.title(title)
@@ -232,6 +239,7 @@ def results_prediction(pred, score):
     st.write(results_df_transposed)
 
 col1, col2 = st.beta_columns(2)
+
 
 with col1:
     st.subheader("Decison Tree Regressor")
