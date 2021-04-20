@@ -12,9 +12,7 @@ import seaborn as sns
 import numpy as np 
 import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.metrics import r2_score
-from sklearn.metrics import mean_squared_error
-import sklearn.metrics as metrics
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.svm import SVR
@@ -234,22 +232,17 @@ def graph_prediction(pred, title):
     st.write(valid)
 
 def results_prediction(pred, score):
-    results = [{'1-Day Forecast': pred[0],'1-Week Forecast': pred[6], '1-Month Forecast': pred[30], 'R-Squared Score': r2_score(y_test, score), 'RMSE': np.sqrt(mean_squared_error(y_test, score))}]
+    results = [{'1-Day Forecast': pred[0],
+                '1-Week Forecast': pred[6], 
+                '1-Month Forecast': pred[30], 
+                'R-Squared': r2_score(y_test, score),
+                'MAE': mean_absolute_error(y_test, score),
+                'RMSE': np.sqrt(mean_squared_error(y_test, score))
+                }]
     results_df = pd.DataFrame(results)
     results_df_transposed = results_df.T
     
     st.write(results_df_transposed)
-
-def regression_results(y_true, y_pred):
-    mean_absolute_error=metrics.mean_absolute_error(y_true, y_pred) 
-    mse=metrics.mean_squared_error(y_true, y_pred) 
-    mean_squared_log_error=metrics.mean_squared_log_error(y_true, y_pred)
-    r2=metrics.r2_score(y_true, y_pred)  
-    print('mean_squared_log_error: ', round(mean_squared_log_error,4))
-    print('r2: ', round(r2,4))
-    print('MAE: ', round(mean_absolute_error,4))
-    print('MSE: ', round(mse,4))
-    print('RMSE: ', round(np.sqrt(mse),4))
 
 col1, col2 = st.beta_columns(2)
 
@@ -261,7 +254,6 @@ with col1:
     st.subheader("Linear Regression")
     graph_prediction(lr_pred, 'Linear Regression')
     results_prediction(lr_pred, lr_score)
-    regression_results(lr_pred, lr_score)
 
 with col2:
     st.subheader("Random Forest Regressor")
