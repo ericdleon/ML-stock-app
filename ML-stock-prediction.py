@@ -233,6 +233,7 @@ svr_score = svr.predict(X_test) # Evaluating the model
 
 st.header("""**Regression Models** for """ + selected_stock)
 
+# Used to graph a stock's price with predictions
 def graph_prediction(pred, title):
     predictions = pred
     valid = df[X.shape[0]:]
